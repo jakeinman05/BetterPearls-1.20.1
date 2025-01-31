@@ -3,6 +3,8 @@ package net.notvergin.betterpearls.entities.projectiles;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -57,12 +59,13 @@ public class ThrownExplosivePearl extends ThrowableItemProjectile
 
                     entity.teleportTo(this.getX(), this.getY(), this.getZ());
                     entity.resetFallDistance();
+                    serverplayer.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 2));
                     this.level().explode(
                             null,
                             this.getX(),
                             this.getY(),
                             this.getZ(),
-                            4.0F,
+                            3.0F,
                             Level.ExplosionInteraction.TNT
                     );
                 }
@@ -74,7 +77,7 @@ public class ThrownExplosivePearl extends ThrowableItemProjectile
                         this.getX(),
                         this.getY(),
                         this.getZ(),
-                        4.0F,
+                        3.0F,
                         Level.ExplosionInteraction.TNT
                 );
             }
@@ -86,6 +89,16 @@ public class ThrownExplosivePearl extends ThrowableItemProjectile
 
     public void tick() {
         Entity entity = this.getOwner();
+
+        if(this.isAlive())
+        {
+            double x = this.getX();
+            double y = this.getY();
+            double z = this.getZ();
+            this.level().addParticle(ParticleTypes.SMOKE, x, y, z, 0, 0, 0);
+        }
+
+
         if (entity instanceof Player && !entity.isAlive()) {
             this.discard();
         } else {

@@ -22,6 +22,7 @@ public class ModItemModelProvider extends ItemModelProvider
     protected void registerModels()
     {
         buildItem(ModItems.SUICIDE_PEARL);
+        buildItem(ModItems.BANANA_PEARL);
     }
 
     private ItemModelBuilder buildItem(RegistryObject<Item> item)
