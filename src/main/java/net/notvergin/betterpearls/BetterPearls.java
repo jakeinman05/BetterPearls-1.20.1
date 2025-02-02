@@ -34,11 +34,8 @@ public class BetterPearls
     {
         IEventBus modEventBus = context.getModEventBus();
 
-        // Implement Registries Here
         ModEntities.register(modEventBus);
         ModItems.register(modEventBus);
-
-
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
@@ -59,6 +56,7 @@ public class BetterPearls
         {
             // add pearls to creative tab here
             event.accept(ModItems.SUICIDE_PEARL);
+            event.accept(ModItems.BANANA_PEARL);
         }
     }
 

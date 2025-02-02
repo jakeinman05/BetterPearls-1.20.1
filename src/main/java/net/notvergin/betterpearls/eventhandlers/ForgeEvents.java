@@ -3,6 +3,7 @@ package net.notvergin.betterpearls.eventhandlers;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -28,6 +29,7 @@ public class ForgeEvents
             player.swing(InteractionHand.MAIN_HAND);
             target.discard();
             event.setCanceled(true);
+            event.setCancellationResult(InteractionResult.SUCCESS);
         }
     }
 }
