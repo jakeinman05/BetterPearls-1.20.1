@@ -1,9 +1,14 @@
 package net.notvergin.betterpearls.entities.projectiles;
 
-import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
@@ -31,14 +36,48 @@ public class ThrownBananaPearl extends ThrowableItemProjectile
     protected void onHit(HitResult pResult) {
         super.onHit(pResult);
 
-        if(!this.level().isClientSide() && (pResult.getType() == HitResult.Type.BLOCK || pResult.getType() == HitResult.Type.ENTITY))
-        {
-            BananaEntity banana = new BananaEntity(ModEntities.BANANA_ENTITY.get(), this.level());
-            banana.setPos(pResult.getLocation().x(), pResult.getLocation().y(), pResult.getLocation().z());
-            banana.setOwner(this.getOwner() instanceof LivingEntity ? (LivingEntity)this.getOwner() : null);
-            this.level().addFreshEntity(banana);
+        for(int i = 0; i < 32; ++i) {
+            this.level().addParticle(ParticleTypes.PORTAL, this.getX(), this.getY() + this.random.nextDouble() * 2.0D, this.getZ(), this.random.nextGaussian(), 0.0D, this.random.nextGaussian());
         }
 
+        if (!this.level().isClientSide && !this.isRemoved()) {
+            Entity entity = this.getOwner();
+            if (entity instanceof ServerPlayer) {
+                ServerPlayer serverplayer = (ServerPlayer)entity;
+                if (serverplayer.connection.isAcceptingMessages() && serverplayer.level() == this.level() && !serverplayer.isSleeping()) {
+                    if (entity.isPassenger()) {
+                        serverplayer.dismountTo(this.getX(), this.getY(), this.getZ());
+                    } else {
+                        entity.teleportTo(this.getX(), this.getY(), this.getZ());
+                    }
+
+                    entity.teleportTo(this.getX(), this.getY(), this.getZ());
+                    entity.resetFallDistance();
+                    this.level().playSound(null, this.blockPosition(), SoundEvents.SLIME_SQUISH, SoundSource.NEUTRAL, 1.0F, 1.0F);
+                    spawnBanana();
+                }
+            } else if (entity != null) {
+                entity.teleportTo(this.getX(), this.getY(), this.getZ());
+                entity.resetFallDistance();
+                this.level().playSound(null, this.blockPosition(), SoundEvents.SLIME_SQUISH, SoundSource.NEUTRAL, 1.0F, 1.0F);
+                spawnBanana();
+            }
+            this.discard();
+        }
         this.discard();
+    }
+
+    private void spawnBanana()
+    {
+        EntityType<BananaEntity> entityType = ModEntities.BANANA_ENTITY.get();
+        if (!this.level().isClientSide) {
+            BananaEntity banana = entityType.create(this.level());
+            if(banana != null)
+            {
+                banana.setPos(this.getX(), this.getY(), this.getZ());
+                banana.setOwner(this.getOwner() instanceof LivingEntity ? (LivingEntity)this.getOwner() : null);
+                this.level().addFreshEntity(banana);
+            }
+        }
     }
 }
