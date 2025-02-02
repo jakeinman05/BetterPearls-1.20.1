@@ -1,11 +1,17 @@
 package net.notvergin.betterpearls.entities;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ambient.AmbientCreature;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -15,20 +21,34 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class BananaEntity extends Entity implements TraceableEntity
+public class BananaEntity extends AmbientCreature implements TraceableEntity
 {
     private static final EntityDataAccessor<Integer> DATA_LIFESPAN_ID = SynchedEntityData.defineId(BananaEntity.class, EntityDataSerializers.INT);
-    private static final int DEFAULT_LIFESPAN = 1200;
-    LivingEntity owner;
+    private static final int DEFAULT_LIFESPAN = 2400;
+    public static LivingEntity owner;
+    private int health = 5;
 
-    public BananaEntity(EntityType<BananaEntity> pEntityType, Level pLevel) {
+    public BananaEntity(EntityType<? extends BananaEntity> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
-        this.blocksBuilding = true;
     }
 
     @Override
     protected void defineSynchedData() {
-        this.entityData.define(DATA_LIFESPAN_ID, 1200);
+        super.defineSynchedData();
+        this.entityData.define(DATA_LIFESPAN_ID, DEFAULT_LIFESPAN);
+    }
+
+    public static AttributeSupplier.Builder createAttributes() {
+        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 5.0D);
+    }
+
+    @Override
+    public boolean isPushable() {
+        return true;
+    }
+
+    @Override
+    protected void checkFallDamage(double pY, boolean pOnGround, BlockState pState, BlockPos pPos) {
     }
 
     @Override
@@ -42,11 +62,14 @@ public class BananaEntity extends Entity implements TraceableEntity
         int i = getLifespan() - 1;
         setLifespan(i);
 
-        if(i <= 0)
+        if(i <= 0){
+            Minecraft.getInstance().particleEngine.createTrackingEmitter(this, ParticleTypes.ITEM_SLIME);
             this.discard();
+        }
+
 
         if(!this.level().isClientSide && this.onGround())
-            this.setDeltaMovement(Vec3.ZERO);;
+            this.setDeltaMovement(Vec3.ZERO);
     }
 
     @Override
@@ -55,56 +78,75 @@ public class BananaEntity extends Entity implements TraceableEntity
         AABB collisionBox = this.getBoundingBox().inflate(0.5);
         List<LivingEntity> entities = this.level().getEntitiesOfClass(LivingEntity.class, collisionBox);
 
-        for(LivingEntity entity : entities)
-        {
+        for(LivingEntity entity : entities) {
             if (entity instanceof Player player) {
-                Vec3 playerVec = player.getDeltaMovement();
-
-                // Ensure a slip effect even if the player is standing still
-                double slipX = playerVec.x == 0 ? (player.getLookAngle().x * 0.8) : playerVec.x * 1.5;
-                double slipZ = playerVec.z == 0 ? (player.getLookAngle().z * 0.8) : playerVec.z * 1.5;
-
-                // Upward boost logic (ensures they slightly pop up)
-                double slipY = Math.max(0.15, -playerVec.y * 1.5); // Always a small boost
-
-                Vec3 slipVec = new Vec3(slipX, slipY, slipZ);
-                System.out.println(playerVec + " ||| " + slipVec);
-
-                player.setDeltaMovement(slipVec);
-                player.hurtMarked = true;
+                if(!player.isCrouching()) {
+                    slip(player);
+                }
             }
-
+            if(!(entity instanceof BananaEntity)) {
+                slip(entity);
+            }
         }
-
         return super.isColliding(pPos, pState);
+    }
+
+    private static void slip(LivingEntity entity)
+    {
+        // maybe use this
+        double movementSpeed = entity.getAttribute(Attributes.MOVEMENT_SPEED).getValue();
+
+        Vec3 entityVec = entity.getDeltaMovement();
+        double slipX = entity.getLookAngle().x * 1.1;
+        double slipZ = entity.getLookAngle().z * 1.1;
+        double slipY = Math.max(0.15, -entityVec.y * 0.5);
+        Vec3 slipVec = new Vec3(slipX, slipY, slipZ);
+        entity.setDeltaMovement(slipVec);
+        entity.hurtMarked = true;
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag pCompound) {
+        super.readAdditionalSaveData(pCompound);
         this.setLifespan(pCompound.getInt("lifespan"));
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag pCompound) {
+        super.addAdditionalSaveData(pCompound);
         pCompound.putInt("lifespan", this.getLifespan());
     }
 
-    private void setLifespan(int life)
-    {
+    private void setLifespan(int life) {
         this.entityData.set(DATA_LIFESPAN_ID, life);
     }
 
-    private int getLifespan()
-    {
+    private int getLifespan() {
         return this.entityData.get(DATA_LIFESPAN_ID);
+    }
+
+    @Override
+    public boolean hurt(DamageSource pSource, float pAmount)
+    {
+        if(health - pAmount <= 0) {
+            Minecraft.getInstance().particleEngine.createTrackingEmitter(this, ParticleTypes.ITEM_SLIME);
+            this.discard();
+        }
+
+        else
+        {
+            health -= (int) pAmount;
+            return false;
+        }
+        return false;
+    }
+
+    public void setOwner(LivingEntity pOwner) {
+        owner = pOwner;
     }
 
     @Override
     public @Nullable Entity getOwner() {
         return owner;
-    }
-
-    public void setOwner(@Nullable LivingEntity owner) {
-        this.owner = owner;
     }
 }
