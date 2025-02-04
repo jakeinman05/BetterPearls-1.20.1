@@ -22,10 +22,11 @@ import javax.annotation.Nullable;
 
 public class ThrownExplosivePearl extends ThrowableItemProjectile
 {
+    // used for registry
     public ThrownExplosivePearl(EntityType<? extends ThrownExplosivePearl> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
     }
-
+    // used for summoning from thrown pearl
     public ThrownExplosivePearl(Level pLevel, LivingEntity pLivingEntity) {
         super(ModEntities.THROWN_SUICIDE_PEARL.get(), pLivingEntity, pLevel);
     }

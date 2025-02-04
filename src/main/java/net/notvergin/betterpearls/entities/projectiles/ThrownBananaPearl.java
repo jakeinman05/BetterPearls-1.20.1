@@ -1,6 +1,7 @@
 package net.notvergin.betterpearls.entities.projectiles;
 
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -9,6 +10,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
@@ -16,6 +18,8 @@ import net.minecraft.world.phys.HitResult;
 import net.notvergin.betterpearls.entities.BananaEntity;
 import net.notvergin.betterpearls.entities.ModEntities;
 import net.notvergin.betterpearls.items.ModItems;
+
+import javax.annotation.Nullable;
 
 public class ThrownBananaPearl extends ThrowableItemProjectile
 {
@@ -65,6 +69,27 @@ public class ThrownBananaPearl extends ThrowableItemProjectile
             this.discard();
         }
         this.discard();
+    }
+
+    public void tick() {
+        Entity entity = this.getOwner();
+
+        if (entity instanceof Player && !entity.isAlive()) {
+            this.discard();
+        } else {
+            super.tick();
+        }
+
+    }
+
+    @Nullable
+    public Entity changeDimension(ServerLevel pServer, net.minecraftforge.common.util.ITeleporter teleporter) {
+        Entity entity = this.getOwner();
+        if (entity != null && entity.level().dimension() != pServer.dimension()) {
+            this.setOwner((Entity)null);
+        }
+
+        return super.changeDimension(pServer, teleporter);
     }
 
     private void spawnBanana()
