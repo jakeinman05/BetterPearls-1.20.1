@@ -5,10 +5,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
-import net.notvergin.betterpearls.items.pearls.BananaPearlItem;
-import net.notvergin.betterpearls.items.pearls.BlockPearlItem;
-import net.notvergin.betterpearls.items.pearls.ExplosivePearlItem;
-import net.notvergin.betterpearls.items.pearls.HomingPearlItem;
+import net.notvergin.betterpearls.items.pearls.*;
 
 import static net.notvergin.betterpearls.BetterPearls.MODID;
 
@@ -21,6 +18,7 @@ public class ModItems
     public static final RegistryObject<Item> BANANA_PEARL = ITEMS.register("banana_pearl", () -> new BananaPearlItem(new Item.Properties()));
     public static final RegistryObject<Item> BLOCK_PEARL = ITEMS.register("block_pearl", () -> new BlockPearlItem(new Item.Properties()));
     public static final RegistryObject<Item> HOMING_PEARL = ITEMS.register("homing_pearl", () -> new HomingPearlItem(new Item.Properties()));
+    public static final RegistryObject<Item> ROCKET_PEARL = ITEMS.register("rocket_pearl", () -> new RocketPearlItem(new Item.Properties()));
 
     public static void register(IEventBus bus)
     {
