@@ -57,6 +57,7 @@ public class BetterPearls
             // add pearls to creative tab here
             event.accept(ModItems.SUICIDE_PEARL);
             event.accept(ModItems.BANANA_PEARL);
+            event.accept(ModItems.BLOCK_PEARL);
         }
     }
 

@@ -21,5 +21,6 @@ public class ClientEntityRegistryEvents
         EntityRenderers.register(ModEntities.THROWN_SUICIDE_PEARL.get(), ThrownItemRenderer::new);
         EntityRenderers.register(ModEntities.THROWN_BANANA_PEARL.get(), ThrownItemRenderer::new);
         EntityRenderers.register(ModEntities.BANANA_ENTITY.get(), RenderBanana::new);
+        EntityRenderers.register(ModEntities.THROWN_BLOCK_PEARL.get(), ThrownItemRenderer::new);
     }
 }

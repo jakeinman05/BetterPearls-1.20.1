@@ -21,6 +21,7 @@ public class ItemModelProvider extends net.minecraftforge.client.model.generator
     {
         buildItem(ModItems.SUICIDE_PEARL);
         buildItem(ModItems.BANANA_PEARL);
+        buildItem(ModItems.BLOCK_PEARL);
     }
 
     private ItemModelBuilder buildItem(RegistryObject<Item> item)

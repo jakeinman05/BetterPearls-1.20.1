@@ -6,6 +6,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.notvergin.betterpearls.items.pearls.BananaPearlItem;
+import net.notvergin.betterpearls.items.pearls.BlockPearlItem;
 import net.notvergin.betterpearls.items.pearls.ExplosivePearlItem;
 
 import static net.notvergin.betterpearls.BetterPearls.MODID;
@@ -17,6 +18,7 @@ public class ModItems
     // Register new item here
     public static final RegistryObject<Item> SUICIDE_PEARL = ITEMS.register("explosive_pearl", () -> new ExplosivePearlItem(new Item.Properties()));
     public static final RegistryObject<Item> BANANA_PEARL = ITEMS.register("banana_pearl", () -> new BananaPearlItem(new Item.Properties()));
+    public static final RegistryObject<Item> BLOCK_PEARL = ITEMS.register("block_pearl", () -> new BlockPearlItem(new Item.Properties()));
 
     public static void register(IEventBus bus)
     {
