@@ -58,6 +58,7 @@ public class BetterPearls
             event.accept(ModItems.SUICIDE_PEARL);
             event.accept(ModItems.BANANA_PEARL);
             event.accept(ModItems.BLOCK_PEARL);
+            event.accept(ModItems.HOMING_PEARL);
         }
     }
 
